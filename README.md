@@ -36,4 +36,4 @@ Here's the gist of how it works:
 1. The ``sorting.yml`` config checks for files in the 'staging' location from step #6 and renames and moves the files to their appropriate final location
 
 ## To Do
-1. Replace rar-unpacking script with Flexget task
+1. Replace rar-unpacking script with Flexget task (#1)
