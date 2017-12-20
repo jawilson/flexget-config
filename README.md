@@ -1,7 +1,7 @@
 # [Flexget](http://www.flexget.com) Configuration Files
 
 Created by: [Jeff Wilson](mailto:jeff@jeffalwilson.com)  
-Available from: https://github.com/jawilson/flexget-config
+Available from: https://github.com/jawilson/flexget-config (originally located in https://github.com/jawilson/dotfiles)
 
 I'm using the [secrets](http://flexget.com/wiki/Plugins/secrets) plugin to hide my private credentials for various plugins. If you want to do this as well, you will need to create a ``secretfile.yml`` file in the same directory as your ``config.yml``.
 
@@ -34,7 +34,6 @@ Here's the gist of how it works:
 1. ``deluge_torrent_complete`` unpacks the first .rar file it finds in the torrent to a 'staging' location
 1. ``deluge_torrent_complete`` calls flexget with a completely separate config, ``sorting.yml`` ([also available in this repository](https://github.com/jawilson/flexget-config/blob/master/sorting.yml))
 1. The ``sorting.yml`` config checks for files in the 'staging' location from step #6 and renames and moves the files to their appropriate final location
-1. ``deluge_torrent_complete`` tells my [XBMC](http://xbmc.org) server to [update the library](http://wiki.xbmc.org/index.php?title=HOW-TO:Remotely_update_library) (scan for new files)
 
 ## To Do
 1. Replace rar-unpacking script with Flexget task
