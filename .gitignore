@@ -8,3 +8,5 @@ flexget*.log*
 torrent_complete.log
 
 *.swp
+.*-lock
+*.pyc
