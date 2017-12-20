@@ -38,33 +38,19 @@ tasks:
     # This is needed to get my season offset values
     include:
       - series.yml
-    sequence:
-      - configure_series:
-          settings:
-            parse_only: yes
-            tracking: no
-            set:
-              move_to: >
-                {? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
-          from:
-            trakt_list:
-              account: '{? trakt.account ?}'
-              list: TV Shows
-              type: shows
-              strip_dates: yes
-      - configure_series:
-          settings:
-            parse_only: yes
-            tracking: no
-            set:
-              move_to: >
-                {? storage.videos ?}/AK Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
-          from:
-            trakt_list:
-              account: '{? trakt.ak_account ?}'
-              list: TV Shows
-              type: shows
-              strip_dates: yes
+    configure_series:
+      settings:
+        parse_only: yes
+        tracking: no
+        set:
+          move_to: >
+            {? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
+      from:
+        trakt_list:
+          account: '{? trakt.account ?}'
+          list: TV Shows
+          type: shows
+          strip_dates: yes
     all_series:
       # Don't actually filter
       parse_only: yes
