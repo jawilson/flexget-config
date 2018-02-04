@@ -277,6 +277,7 @@ templates:
     disable:
       - retry_failed
       - seen
+      - seen_info_hash
     no_entries_ok: yes
     accept_all: yes
     exec:
