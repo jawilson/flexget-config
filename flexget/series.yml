@@ -1,6 +1,8 @@
 series:
   - "Cosmos: A Spacetime Odyssey":
       name_regexp: ^cosmos.+a.space.?time.odyssey
+      alternate_name:
+        - Cosmos (2014)
   - Last Man Standing:
       alternate_name:
           - Last Man Standing (US)

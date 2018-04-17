@@ -1,0 +1,12 @@
+*~
+*.state
+*.log
+*.pid
+hostlist.*
+auth
+web.conf
+label.conf
+state/
+ssl/
+plugins/
+downloads/

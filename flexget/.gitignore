@@ -1,0 +1,13 @@
+secretfile.yml
+
+converted/
+received/
+cached_resources/
+
+db-*.sqlite
+flexget*.log*
+torrent_complete.log
+
+*.swp
+.*-lock
+*.pyc

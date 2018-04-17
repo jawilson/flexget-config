@@ -1,0 +1,74 @@
+version: '2'
+
+services:
+  dropbox:
+    image: janeczku/dropbox
+    restart: unless-stopped
+    environment:
+      - DBOX_UID=1000
+      - DBOX_GID=1001
+    volumes:
+      - ./dbox/.dropbox:/dbox/.dropbox
+      - ./dbox/dropbox:/dbox/Dropbox
+  deluge-private:
+    image: linuxserver/deluge
+    restart: unless-stopped
+    expose:
+      - 58846
+    ports:
+      - "8112:8112"
+      - "65088:65088"
+      - "65088:65088/udp"
+    links:
+      - "deluge-public:public"
+    environment:
+      - PUID=113
+      - PGID=1001
+      - UMASK_SET=002
+      - TZ=America/New_York
+    volumes:
+      - ./deluge/config-private:/config
+      - ./deluge/trigger-decompress.sh:/usr/local/bin/trigger-decompress.sh:ro
+      - ./deluge/downloads:/downloads
+      - /media/raid/videos:/videos
+  deluge-public:
+    image: linuxserver/deluge
+    restart: unless-stopped
+    expose:
+      - 58846
+    ports:
+      - "8113:8112"
+      - "65087:65087"
+      - "65087:65087/udp"
+    environment:
+      - PUID=113
+      - PGID=1001
+      - UMASK_SET=002
+      - TZ=America/New_York
+    volumes:
+      - ./deluge/config-public:/config
+      - ./deluge/trigger-decompress.sh:/usr/local/bin/trigger-decompress.sh:ro
+      - ./deluge/downloads:/downloads
+      - /media/raid/videos:/videos
+  flexget:
+    image: cpoppema/docker-flexget
+    restart: unless-stopped
+    links:
+      - "deluge-public:public"
+      - "deluge-private:private"
+    ports:
+      - 5050:5050
+    environment:
+      - PUID=112
+      - PGID=1001
+      - TORRENT_PLUGIN=deluge
+      - FLEXGET_LOG_LEVEL=info
+      - TZ=America/New_York
+    volumes:
+      - ./flexget:/config
+      - ./flexget/99-install-rarfile:/etc/cont-init.d/99-install-rarfile:ro
+      - ./dbox/dropbox/Flexget/db-config.sqlite:/config/db-config.sqlite
+      - ./dbox/dropbox/torrents:/home/jawilson/Dropbox/torrents
+      - ./dbox/dropbox/Flexget/secretfile.yml:/config/secretfile.yml:ro
+      - ./deluge/downloads:/downloads:ro
+      - /media/raid/videos:/videos
