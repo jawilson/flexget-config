@@ -127,6 +127,22 @@ templates:
             - trakt_list:
                 <<: *tv-trakt-list-tv-shows
                 type: shows
+    _tv_discover_from: &tv-discover-from
+      from:
+        - torrentleech:
+            rss_key: '{? torrentleech.rss_key ?}'
+            username: '{? torrentleech.username ?}'
+            password: '{? torrentleech.password ?}'
+            category: ['Episodes HD', 'Episodes']
+        - flexget_archive: [tv]
+        - rarbg:
+            category: [41, 49]
+            use_tvdb: true
+            min_seeders: 10
+        - piratebay:
+            category: 'highres tv'
+        - piratebay:
+            category: 'tv'
 
   tv-trakt-follow:
     disable:
@@ -153,11 +169,11 @@ templates:
     if:
       - season_pack:
           content_size:
-            min: 500
+            min: 200
       - not season_pack:
           content_size:
             max: 10000
-            min: 100
+            min: 40
     # Prevent from downloading shows that were aquired manually
     # or are currently downloading
     exists_series:
@@ -170,7 +186,7 @@ templates:
     # Look up info on TheTVDB.com to fill in extra info
     thetvdb_lookup: yes
     trakt_lookup: yes
-    metinfo_serios: yes
+    metainfo_series: yes
     require_field: [series_name, series_id]
     sequence:
       - configure_series:
@@ -206,7 +222,7 @@ templates:
       - "has_field('category')":
           regexp:
             reject_excluding:
-              - '^(DVDRip.DVDScreener|DVD-R|HDRip|Bluray(Rip)?|4K Upscaled.UHD LQ|Real 4K UltraHD HDR|Documentaries)$': {from: category}
+              - '^(DVDRip.DVDScreener|DVD-R|WEBRip|HDRip|Bluray(Rip)?|4K Upscaled.UHD LQ|Real 4K UltraHD HDR|Documentaries)$': {from: category}
     regexp:
       reject:
         - s\d+e\d+: {from: title}
@@ -266,7 +282,7 @@ templates:
             rss_key: '{? torrentleech.rss_key ?}'
             username: '{? torrentleech.username ?}'
             password: '{? torrentleech.password ?}'
-            category: [11, 12, 13, 14, 29, 41, 47]
+            category: [11, 12, 13, 14, 29, 37, 41, 43, 47]
         - flexget_archive: [movies]
         - rarbg:
             category: [44, 45, 47]
@@ -384,6 +400,7 @@ tasks:
       settings:
         tracking: no
         upgrade: yes
+        parse_only: yes
     accept_all: true
 
 
@@ -401,8 +418,59 @@ tasks:
       parse_only: yes
     accept_all: yes
     exists_series:
-      - '{? storage.videos ?}/TV Shows'
+      - "{? storage.videos ?}/TV Shows"
     series_remove: yes
+    run_task:
+      when: accepted
+      task:
+        - Series-Decompress-Deleted
+        - My-TV-Shows-Deleted
+
+
+  Series-Decompress-Deleted:
+    manual: yes
+    priority: 15
+    template:
+      - no_global # None of the global templates make sense here
+      - tv-global
+    seen: no
+    filesystem:
+      path: '{? storage.downloads ?}/completed/tv_shows/'
+      recursive: yes
+      regexp: '.*\.(rar|r0[01]?|zip)$'
+    archives: yes
+    exists_series:
+      - "{? storage.videos ?}/TV Shows"
+      - '{? storage.videos ?}/staging/tv_shows'
+    <<: *tv-series
+    no_entries_ok: yes
+    decompress:
+      keep_dirs: no
+      delete_archive: no
+      to: '{? storage.videos ?}/staging/tv_shows/{{title}}'
+      regexp: '.*\.(mkv|avi|mp4|mpg|mov|m4v)$'
+    run_task:
+      when: accepted
+      task: Series-Sort-Decompressed
+
+
+  My-TV-Shows-Deleted:
+    manual: yes
+    priority: 16
+    template:
+      - tv-global
+      - tv-filter
+    disable:
+      - seen
+      - seen_info_hash
+    discover:
+      interval: 2 hours
+      <<: *tv-discover-from
+      what:
+        - next_series_episodes:
+            backfill: yes
+            from_start: yes
+    archive: [tv]
 
 
   Follow-Trakt-Shows:
@@ -438,21 +506,7 @@ tasks:
               - '^Episodes( HD)?$': {from: category}
     discover:
       interval: 2 hours
-      from:
-        - torrentleech:
-            rss_key: '{? torrentleech.rss_key ?}'
-            username: '{? torrentleech.username ?}'
-            password: '{? torrentleech.password ?}'
-            category: ['Episodes HD', 'Episodes']
-        - flexget_archive: [tv]
-        - rarbg:
-            category: [41, 49]
-            use_tvdb: true
-            min_seeders: 10
-        - piratebay:
-            category: 'highres tv'
-        - piratebay:
-            category: 'tv'
+      <<: *tv-discover-from
       what:
         - next_series_seasons:
             backfill: yes
@@ -596,8 +650,7 @@ tasks:
     # Where to get the metadata
     thetvdb_lookup: yes
     # This is needed to get my season offset values
-    include:
-      - series.yml
+    <<: *tv-series
     configure_series:
       settings:
         parse_only: yes
