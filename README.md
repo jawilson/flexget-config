@@ -29,7 +29,7 @@ Here's the gist of how it works:
 1. Flexget accepts the torrent regardless if it's a rar-pack or not
 1. My custom ``content_sort`` plugin ([available in this repository](https://github.com/jawilson/flexget-config/blob/master/flexget/plugins/content_sort.py)) changes the ``move_done`` value if the torrent contains a ``.rar``
 1. The torrent is added to Deluge
-1. Deluge is configured with the [Execute](http://dev.deluge-torrent.org/wiki/Plugins/Execute) plugin to run my ``trigger-decompress.sh`` script ([also available in this repository](https://github.com/jawilson/dotfiles/blob/master/deluge/trigger-decompress.sh)) when any torrent is done downloading
+1. Deluge is configured with the [Execute](http://dev.deluge-torrent.org/wiki/Plugins/Execute) plugin to run my ``trigger-decompress.sh`` script ([also available in this repository](https://github.com/jawilson/flexget-config/blob/master/deluge/trigger-decompress.sh)) when any torrent is done downloading
 1. ``trigger-decompress.sh`` simply calls the Flexget API and requests the ``Series-Decompress`` and ``Movies-Decompress`` tasks be run
 1. Flexget uses the ``decompress`` plugin to unpack the torrent to a 'staging' location, then it runs the appropriate ``*-Sort-Decompressed`` task
 1. The sort task checks for files in the 'staging' location from step #6 and renames and moves the files to their appropriate final location
