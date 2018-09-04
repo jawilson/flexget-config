@@ -50,6 +50,8 @@ templates:
       rss.torrentleech.org: 10 minutes
       bt-chat.com: 5 seconds
       thexem.de: 10 seconds
+    # TorrentLeech uses cloudflare anti-bot measures, bypass those
+    cfscraper: yes
     notify:
       entries:
         title: '{{ task }} - Download Started'

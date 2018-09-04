@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+
+pip install -U rarfile
+pip install -U cfscrape
+apk add --no-cache --update nodejs
