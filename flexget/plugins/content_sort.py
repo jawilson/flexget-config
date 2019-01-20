@@ -7,7 +7,6 @@ from flexget.event import event
 
 log = logging.getLogger('content_sort')
 
-
 class FilterContentSort(object):
     """
     Set the movedone attribute based on torrent contents. Earlier defined types take predence
@@ -18,11 +17,10 @@ class FilterContentSort(object):
       '*.mkv': '/other/path'
     """
 
-    def validator(self):
-        from flexget import validator
-        config = validator.factory('dict')
-        config.accept_any_key('any')
-        return config
+    schema = {
+        'type': 'object',
+        'additionalProperties': {'type': 'string'}
+    }
 
     def process_entry(self, task, entry, config):
         if 'content_files' in entry:

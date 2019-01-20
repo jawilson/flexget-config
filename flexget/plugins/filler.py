@@ -10,12 +10,9 @@ from flexget.event import event
 
 log = logging.getLogger('filler')
 
+schema = {'type': 'boolean'}
 
 class Filler(object):
-    def validator(self):
-        from flexget import validator
-        return validator.factory('any')
-
     def on_task_input(self, task, config):
         task.no_entries_ok = True
         entry = Entry(title="###FILLER###", url="file:///dev/null")

@@ -8,12 +8,13 @@ from flexget.utils.log import log_once
 
 log = logging.getLogger('my_movie_filter')
 
-
 class MyMovieFilter(object):
     """
        Filters entries based on some crazy custom rules
     """
-    
+
+    schema = {'type': 'boolean'}
+
     required_fields = [
             'imdb_url', 'imdb_languages', 'imdb_votes', 'imdb_votes', 'rt_id', 'rt_releases',
             'rt_genres', 'rt_critics_rating', 'rt_audience_rating', 'rt_critics_score',
@@ -88,10 +89,6 @@ class MyMovieFilter(object):
          'Mystery & Suspense': (imdb_genres_accept['mystery']+imdb_genres_accept['thriller'])/2
         }
 
-    def validator(self):
-        from flexget import validator
-        return validator.factory('boolean')
-
 
     def check_fields(self, task, entry):
         for field in self.required_fields:
@@ -107,7 +104,7 @@ class MyMovieFilter(object):
         for entry in task.entries:
             force_accept = False
             reasons = []
-            
+
             if not self.check_fields(task, entry):
                 continue
 
@@ -139,7 +136,7 @@ class MyMovieFilter(object):
 
             # Make sure all scores are reliable
             if entry['rt_critics_score'] < 0 or entry['rt_audience_score'] < 0 or entry['imdb_votes'] < self.min_imdb_votes or entry['imdb_score'] == 0:
-                entry.reject('Unreliable scores (rt_critics_consensus: %s, rt_critics_score: %s, rt_audience_score: %s, imdb_votes: %s, imdb_score: %s)' % 
+                entry.reject('Unreliable scores (rt_critics_consensus: %s, rt_critics_score: %s, rt_audience_score: %s, imdb_votes: %s, imdb_score: %s)' %
                     (('filled' if entry['rt_critics_consensus'] else None) , entry['rt_critics_score'], entry['rt_audience_score'], entry['imdb_votes'], entry['imdb_score'])
                 )
                 continue
@@ -188,7 +185,7 @@ class MyMovieFilter(object):
                             (entry['rt_critics_score']*self.weight_low)
             else:
                 score = entry['rt_average_score']
-                
+
             log.debug('Using score: %s' % score)
             if score_offset != 0:
                 score = score + score_offset
