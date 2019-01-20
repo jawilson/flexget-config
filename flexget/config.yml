@@ -12,14 +12,8 @@ variables: secretfile.yml
 web_server: yes
 
 templates:
-
   global:
     # Some strings I found tripping up the parsers
-    manipulate:
-      - title:
-          replace:
-            regexp: '-?bs666$'
-            format: ''
     if:
       - "'torrentleech' in url":
           deluge:
@@ -250,10 +244,6 @@ templates:
     # Download propers, since they will have the same content_filename,
     # lower/non-propers will be overwritten
     proper_movies: yes
-    #manipulate:
-    #  - extras:
-    #    from: title
-    #    extract: '(?:half|h).?(sbs|tab|ou)'
     set:
       # Give folders/files nice names
       movedone: "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }})"
@@ -691,10 +681,6 @@ tasks:
     #rottentomatoes_lookup: yes
     proper_movies: yes
     require_field: [movie_name, movie_year]
-    #manipulate:
-    #  - extras:
-    #      from: title
-    #      extract: '(?:half|h).?(sbs|tab|ou)'
     move:
       to: >
         {? storage.videos ?}/Movies/{{ movie_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ movie_year }})/
