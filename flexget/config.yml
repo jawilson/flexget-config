@@ -173,7 +173,7 @@ templates:
     # Prevent from downloading shows that were aquired manually
     # or are currently downloading
     exists_series:
-      - "{? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}"
+      - "{? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '')|pathscrub('windows') }}"
       - '{? storage.videos ?}/staging/tv_shows'
       - '{? storage.downloads ?}'
 
@@ -231,7 +231,7 @@ templates:
       min: 1000
     # Check for already downloaded or currently downloading movies
     exists_movie:
-      - "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }})"
+      - "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '')|pathscrub('windows') }} ({{ imdb_year }})"
       - '{? storage.videos ?}/staging/movies'
       - '{? storage.downloads ?}'
     list_match:
