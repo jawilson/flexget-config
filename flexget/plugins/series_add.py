@@ -8,11 +8,11 @@ from flexget.event import event
 from flexget.manager import Session
 
 try:
-    from flexget.plugins.filter.series import (Series, normalize_series_name, shows_by_exact_name,
-                                               add_series_entity)
+    from flexget.components.series.db import Series, shows_by_exact_name, add_series_entity
+    from flexget.components.series.utils import normalize_series_name
 except ImportError:
     raise plugin.DependencyError(issued_by='series_add', missing='series',
-                                 message='series_add plugin need series plugin to work')
+                                 message='series_add plugin need series component to work')
 
 log = logging.getLogger('series_add')
 

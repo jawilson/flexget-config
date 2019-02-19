@@ -27,4 +27,4 @@ class Filler(object):
 
 @event('plugin.register')
 def register_plugin():
-    plugin.register(Filler, 'filler', groups=['search'], api_ver=2)
+    plugin.register(Filler, 'filler', interfaces=['search'], api_ver=2)
