@@ -9,7 +9,7 @@ log = logging.getLogger('content_sort')
 
 class FilterContentSort(object):
     """
-    Set the movedone attribute based on torrent contents. Earlier defined types take predence
+    Set the move_completed_path attribute based on torrent contents. Earlier defined types take predence
 
     Example:
     content_sort:
@@ -32,7 +32,7 @@ class FilterContentSort(object):
                 for file in files:
                     log.debug('\t in: %s' % file)
                     if fnmatch(file, mask):
-                        conf = {'movedone': path }
+                        conf = {'move_completed_path': path }
                         log.debug('adding set: info to entry:\'%s\' %s' % (entry['title'], conf))
                         entry.update(conf)
 

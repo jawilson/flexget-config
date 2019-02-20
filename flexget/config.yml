@@ -188,7 +188,7 @@ templates:
       - configure_series:
           settings:
             set:
-              movedone: >-
+              move_completed_path: >-
                 {? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
           from:
             trakt_list:
@@ -200,7 +200,7 @@ templates:
       content_filename: >-
         /{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} - {{ series_id }}{% if tvdb_ep_name|default(False) %} - {{ tvdb_ep_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }}{% endif %} - {{ quality }}
     # This is a custom plugin, it is part of my rar-unpacking method,
-    # it changes 'movedone' based on the regexp in the key
+    # it changes 'move_completed_path' based on the regexp in the key
     content_sort:
       '*.rar': '{? storage.downloads ?}/completed/tv_shows/'
 
@@ -246,12 +246,12 @@ templates:
     proper_movies: yes
     set:
       # Give folders/files nice names
-      movedone: "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }})"
+      move_completed_path: "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }})"
       # Rename the "content file" to something nice, use leading slash to force file to top level
       content_filename: >-
         /{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}
     # This is a custom plugin, it is part of my rar-unpacking method, it changes
-    # 'movedone' based on the regexp in the key
+    # 'move_completed_path' based on the regexp in the key
     content_sort:
       '*.rar': '{? storage.downloads ?}/completed/movies/'
     list_remove:
@@ -510,6 +510,8 @@ tasks:
             from_start: yes
     max_reruns: 2
     archive: [tv]
+    set:
+      label: my-tv-shows
 
 
   Monitor-Missing-Shows:
