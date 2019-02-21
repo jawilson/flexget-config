@@ -73,9 +73,6 @@ templates:
     regexp:
       reject:
         - (s|d)ub(s|bed)?\b: {from: title}                    # Block any subbed/dubbed/etc videos
-        - \bspanish\b: {from: title}                          # Spanish releases kept cropping up
-        - \b(duo|tri|quadri|tetra|penta)logy\b: {from: title} # Block series, only accept one at a time
-        - \btrailer\b: {from: title}                          # I've gotten a few trailers that matched as movies. VERY annoying
         - \bR5\b: {from: title}                               # The following are poor quality types that somehow got through the quality
         - \bWEBSCR\b: {from: title}                           # features usually due to the title including a keyword like "720p" as well
         - \bscreener\b: {from: title}
@@ -119,10 +116,9 @@ templates:
         - series.yml
       configure_series: &tv-series-from
         from:
-          inputs:
-            - trakt_list:
-                <<: *tv-trakt-list-tv-shows
-                type: shows
+          trakt_list:
+            <<: *tv-trakt-list-tv-shows
+            type: shows
     _tv_discover_from: &tv-discover-from
       from:
         - torrentleech:
@@ -153,12 +149,13 @@ templates:
   tv-filter:
     <<: *tv-series
     template: [global-filter]
+    timeframe:
+      target: 720p+ webrip+
+      wait: 3 days
+    quality: 480p+ webrip+
     configure_series:
       <<: *tv-series-from
       settings:
-        target: 720p+ webrip+
-        timeframe: 3 days
-        quality: 480p+ webrip+
         tracking: backfill
         season_packs: yes
     # Impose reasonable size constraints
@@ -221,6 +218,8 @@ templates:
               - '^(DVDRip.DVDScreener|DVD-R|WEBRip|HDRip|Bluray(Rip)?|4K Upscaled.UHD LQ|Real 4K UltraHD HDR|Documentaries)$': {from: category}
     regexp:
       reject:
+        - \b(duo|tri|quadri|tetra|penta)logy\b: {from: title} # Block series, only accept one at a time
+        - \btrailer\b: {from: title}                          # I've gotten a few trailers that matched as movies. VERY annoying
         - s\d+e\d+: {from: title}
         - '\d{4}.\d{2}.\d{2}': {from: title}
         - \d+x\d+: {from: title}
@@ -236,7 +235,9 @@ templates:
       - '{? storage.downloads ?}'
     list_match:
       from:
-        - movie_list: movie queue
+        - trakt_list:
+            <<: *movie-trakt-list-movies
+      remove_on_match: no
 
   movies-global:
     imdb_lookup: yes
@@ -257,36 +258,6 @@ templates:
     list_remove:
       - trakt_list:
           <<: *movie-trakt-list-movies
-
-  # This template uses the movie queue to find movies from various sources
-  movies-queued:
-    rss:
-      url: 'http://rss.torrentleech.org/{? torrentleech.rss_key ?}'
-      other_fields: [category]
-    discover:
-      release_estimations:
-        optimistic: 30 days
-      interval: 2 hours
-      what:
-        - trakt_list:
-            <<: *movie-trakt-list-movies
-      from:
-        - torrentleech:
-            rss_key: '{? torrentleech.rss_key ?}'
-            username: '{? torrentleech.username ?}'
-            password: '{? torrentleech.password ?}'
-            category: [11, 12, 13, 14, 29, 37, 41, 43, 47]
-        - flexget_archive: [movies]
-        - rarbg:
-            category: [44, 45, 47]
-            min_seeders: 10
-        - piratebay:
-            category: 'highres movies'
-        - piratebay:
-            category: 'movies'
-    archive: [movies]
-    set:
-      label: my-movies
 
 
   local-torrents:
@@ -363,12 +334,11 @@ tasks:
       recursive: yes
       retrieve: files
       regexp: '.*\.torrent$'
-    list_remove:
-      - movie_list: movie queue
     set:
       label: local-movies
 
 
+  # flexget exec --tasks 'Sync-TV-Shows' --disable-tracking --learn
   Sync-TV-Shows:
     manual: yes
     template:
@@ -383,7 +353,7 @@ tasks:
         - '{? storage.videos ?}/TV Shows'
       recursive: yes
       retrieve: files
-      regexp: '.*\.(avi|mkv|mp4|mpg|m4v)$'
+      regexp: '.*\.(avi|mkv|mp4|mpg|m4v|ts)$'
     regexp:
       reject:
         - \bsample\b: {from: title}
@@ -391,10 +361,8 @@ tasks:
     configure_series:
       <<: *tv-series-from
       settings:
-        tracking: no
+        tracking: backfill
         upgrade: yes
-        parse_only: yes
-    accept_all: true
 
 
   Sync-Trakt-Shows-Deleted:
@@ -541,7 +509,7 @@ tasks:
               url: '{{ trakt_series_url }}/seasons/{{ trakt_season }}/episodes/{{ trakt_episode }}'
 
 
-  # Cleans movies from the movie queue (and Trakt) that we already have
+  # Cleans movies from the Trakt that we already have
   Clean-Movie-Queue:
     priority: 90
     template: no_global
@@ -555,21 +523,8 @@ tasks:
     require_field: [movie_name, movie_year]
     accept_all: yes
     list_remove:
-      - movie_list: movie queue
-
-
-  # This task queues all of the movies in my Trakt "Movie Queue" playlist
-  Movie-Queue:
-    priority: 100 # Always run before My-Movies task
-    template: no_global # None of the global templates make sense here
-    seen: local
-    sequence:
       - trakt_list:
           <<: *movie-trakt-list-movies
-    no_entries_ok: yes
-    accept_all: yes
-    list_add:
-      - movie_list: movie queue
 
 
   # The next two tasks download the queue from the previous task effectively implementing
@@ -579,14 +534,12 @@ tasks:
     template:
       - movies-global
       - movies-filter
-      - movies-queued
     quality: 1080p+ bluray+ h265+ !aac !mp3 !ac3
 
 
   My-Movies-720p:
     priority: 120
     template:
-      - movies-queued
       - movies-filter
       - movies-global
     quality: 720p+ dvdrip+ h264+ !mp3 !aac
