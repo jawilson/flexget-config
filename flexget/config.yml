@@ -229,6 +229,11 @@ templates:
         - '\d{4}.\d{2}.\d{2}': {from: title}
         - \d+x\d+: {from: title}
         - \baac2: {from: title} # No 2 channel audio
+    timeframe:
+      target: 1080p+ bluray+ h265+ !ac3
+      wait: 28 days
+      on_reached: do_nothing
+    quality: 720p+ dvdrip+ h264+ !mp3 !aac
     # Impose reasonable size constraints
     content_size:
       max: 20000
@@ -534,23 +539,38 @@ tasks:
 
   # The next two tasks download the queue from the previous task effectively implementing
   # a 2 day timeframe for 1080p movies, then falls back to 720p
-  My-Movies-1080p:
-    priority: 110
+  My-Movies:
+    priority: 100
     template:
       - movies-global
       - movies-filter
-    quality: 1080p+ bluray+ h265+ !aac !mp3 !ac3
-
-
-  My-Movies-720p:
-    priority: 120
-    template:
-      - movies-filter
-      - movies-global
-    quality: 720p+ dvdrip+ h264+ !mp3 !aac
-    torrent_alive:
-      min_seeds: 5
-    delay: 28 days # Wait 28 days for a 1080p movie before trying downloading 720p
+    rss:
+      url: 'http://rss.torrentleech.org/{? torrentleech.rss_key ?}'
+      other_fields: [category]
+    discover:
+      release_estimations:
+        optimistic: 30 days
+      interval: 2 hours
+      what:
+        - trakt_list:
+            <<: *movie-trakt-list-movies
+      from:
+        - torrentleech:
+            rss_key: '{? torrentleech.rss_key ?}'
+            username: '{? torrentleech.username ?}'
+            password: '{? torrentleech.password ?}'
+            category: [11, 12, 13, 14, 29, 37, 41, 43, 47]
+        - flexget_archive: [movies]
+        - rarbg:
+            category: [44, 45, 47]
+            min_seeders: 10
+        - piratebay:
+            category: 'highres movies'
+        - piratebay:
+            category: 'movies'
+    archive: [movies]
+    set:
+      label: my-movies
 
 
   Series-Decompress:
@@ -673,7 +693,7 @@ schedules:
   #
   # Movies
   #
-  - tasks: [ 'Movie-Queue', 'My-Movies-*' ]
+  - tasks: [ 'My-Movies' ]
     interval:
       hours: 1
 
