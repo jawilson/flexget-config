@@ -105,6 +105,11 @@ templates:
     rewrite_magnet:
       scrape: yes
     magnets: no
+    sort_by:
+      - field: quality
+        reverse: yes
+      - field: torrent_availability
+        reverse: yes
 
   tv-anchors:
     _tv_trakt_list_tv_shows: &tv-trakt-list-tv-shows
