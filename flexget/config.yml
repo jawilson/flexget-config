@@ -101,6 +101,9 @@ templates:
       reject:
         - 'password.txt'
         - '*.wmv'
+    reorder_quality:
+      webdl:
+        above: dvdrip
     # Size and seed restrictions require real torrents
     rewrite_magnet:
       scrape: yes
