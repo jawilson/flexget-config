@@ -213,8 +213,10 @@ templates:
   movie-anchors:
     _movie_trakt_list_movies: &movie-trakt-list-movies
       account: '{? trakt.account ?}'
-      list: Movie Queue
       type: movies
+    _movie_trakt_list_movie_queue: &movie-trakt-list-movie-queue
+      <<: *movie-trakt-list-movies
+      list: Movie Queue
 
   movies-filter:
     template: [global-filter]
@@ -232,6 +234,8 @@ templates:
         - '\d{4}.\d{2}.\d{2}': {from: title}
         - \d+x\d+: {from: title}
         - \baac2: {from: title} # No 2 channel audio
+    upgrade:
+      tracking: yes
     timeframe:
       target: 1080p+ bluray+ h265+ !ac3
       wait: 28 days
@@ -246,11 +250,6 @@ templates:
       - "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '')|pathscrub('windows') }} ({{ imdb_year }})"
       - '{? storage.videos ?}/staging/movies'
       - '{? storage.downloads ?}'
-    list_match:
-      from:
-        - trakt_list:
-            <<: *movie-trakt-list-movies
-      remove_on_match: no
 
   movies-global:
     imdb_lookup: yes
@@ -270,7 +269,7 @@ templates:
       '*.rar': '{? storage.downloads ?}/completed/movies/'
     list_remove:
       - trakt_list:
-          <<: *movie-trakt-list-movies
+          <<: *movie-trakt-list-movie-queue
 
 
   local-torrents:
@@ -511,6 +510,7 @@ tasks:
       - trakt_ep_first_aired
     if:
       - trakt_ep_first_aired and trakt_ep_first_aired < now - timedelta(days=2): accept
+    max_reruns: 0
     notify:
       entries:
         title: Missing Episode Detected
@@ -537,7 +537,7 @@ tasks:
     accept_all: yes
     list_remove:
       - trakt_list:
-          <<: *movie-trakt-list-movies
+          <<: *movie-trakt-list-movie-queue
 
 
   # The next two tasks download the queue from the previous task effectively implementing
@@ -556,7 +556,7 @@ tasks:
       interval: 2 hours
       what:
         - trakt_list:
-            <<: *movie-trakt-list-movies
+            <<: *movie-trakt-list-movie-queue
       from:
         - torrentleech:
             rss_key: '{? torrentleech.rss_key ?}'
@@ -574,6 +574,11 @@ tasks:
     archive: [movies]
     set:
       label: my-movies
+    list_match:
+      from:
+        - trakt_list:
+            <<: *movie-trakt-list-movie-queue
+      remove_on_match: no
 
 
   Series-Decompress:
@@ -634,10 +639,8 @@ tasks:
         tracking: no
       from:
         trakt_list:
-          account: '{? trakt.account ?}'
-          list: TV Shows
+          <<: *tv-trakt-list-tv-shows
           type: shows
-          strip_dates: yes
     all_series:
       # Don't actually filter
       parse_only: yes
