@@ -119,6 +119,10 @@ templates:
       account: '{? trakt.account ?}'
       list: TV Shows
       strip_dates: yes
+    _tv_trakt_list_tv_shows_missing: &tv-trakt-list-tv-shows-missing
+      account: '{? trakt.account ?}'
+      list: Missing Episodes
+      strip_dates: yes
     _tv_series: &tv-series
       include:
         - series.yml
@@ -492,6 +496,10 @@ tasks:
     archive: [tv]
     set:
       label: my-tv-shows
+    list_remove:
+      - trakt_list:
+          <<: *tv-trakt-list-tv-shows-missing
+          type: episodes
 
 
   Monitor-Missing-Shows:
@@ -520,6 +528,10 @@ tasks:
           - pushbullet:
               api_key: '{? pushbullet.apikey ?}'
               url: '{{ trakt_series_url }}/seasons/{{ trakt_season }}/episodes/{{ trakt_episode }}'
+    list_add:
+      - trakt_list:
+          <<: *tv-trakt-list-tv-shows-missing
+          type: episodes
 
 
   # Cleans movies from the Trakt that we already have
