@@ -50,7 +50,7 @@ class EstimatesSeriesTrakt(object):
                 trakt_series = api_trakt.lookup_series(session=session, **kwargs)
                 if trakt_series is None:
                     return
-                if trakt_series.seasons < season:
+                if trakt_series.seasons.count() < season:
                     # Season doesn't exist
                     log.debug('%s doesn\'t have %s seasons in trakt' %
                             (series_name, season))
