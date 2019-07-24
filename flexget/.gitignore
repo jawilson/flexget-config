@@ -6,6 +6,7 @@ cached_resources/
 
 db-*.sqlite
 flexget*.log*
+crash_report.*
 torrent_complete.log
 
 *.swp

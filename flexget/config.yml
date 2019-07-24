@@ -119,6 +119,10 @@ templates:
       account: '{? trakt.account ?}'
       list: TV Shows
       strip_dates: yes
+    _tv_trakt_list_sasha_tv: &tv-trakt-list-sasha-tv
+      account: '{? trakt.account ?}'
+      list: Sasha TV
+      strip_dates: yes
     _tv_trakt_list_tv_shows_missing: &tv-trakt-list-tv-shows-missing
       account: '{? trakt.account ?}'
       list: Missing Episodes
@@ -126,11 +130,17 @@ templates:
     _tv_series: &tv-series
       include:
         - series.yml
-      configure_series: &tv-series-from
-        from:
-          trakt_list:
-            <<: *tv-trakt-list-tv-shows
-            type: shows
+      sequence:
+        - configure_series: &tv-series-from
+            from:
+              trakt_list:
+                <<: *tv-trakt-list-tv-shows
+                type: shows
+        - configure_series: &tv-series-from-sasha
+            from:
+              trakt_list:
+                <<: *tv-trakt-list-sasha-tv
+                type: shows
     _tv_discover_from: &tv-discover-from
       from:
         - torrentleech:
@@ -154,9 +164,6 @@ templates:
     accept_all: yes
     no_entries_ok: yes
     set_series_begin: yes
-    manipulate:
-      - series_name:
-          from: trakt_series_name
 
   tv-filter:
     <<: *tv-series
@@ -165,11 +172,17 @@ templates:
       target: 720p+ webrip+
       wait: 3 days
     quality: 480p+ webrip+
-    configure_series:
-      <<: *tv-series-from
-      settings:
-        tracking: backfill
-        season_packs: yes
+    sequence:
+      - configure_series:
+          <<: *tv-series-from
+          settings:
+            tracking: backfill
+            season_packs: yes
+      - configure_series:
+          <<: *tv-series-from-sasha
+          settings:
+            tracking: backfill
+            season_packs: yes
     # Impose reasonable size constraints
     if:
       - season_pack:
@@ -183,6 +196,7 @@ templates:
     # or are currently downloading
     exists_series:
       - "{? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '')|pathscrub('windows') }}"
+      - "{? storage.videos ?}/Sasha TV/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '')|pathscrub('windows') }}"
       - '{? storage.videos ?}/staging/tv_shows'
       - '{? storage.downloads ?}'
 
@@ -202,6 +216,15 @@ templates:
           from:
             trakt_list:
               <<: *tv-trakt-list-tv-shows
+              type: shows
+      - configure_series:
+          settings:
+            set:
+              move_completed_path: >-
+                {? storage.videos ?}/Sasha TV/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
+          from:
+            trakt_list:
+              <<: *tv-trakt-list-sasha-tv
               type: shows
     set:
       queuetotop: yes
@@ -325,10 +348,15 @@ tasks:
       parse_only: yes
       assume_special: yes
       season_packs: yes
-    configure_series:
-      <<: *tv-series-from
-      settings:
-        parse_only: yes
+    sequence:
+      - configure_series:
+          <<: *tv-series-from
+          settings:
+            parse_only: yes
+      - configure_series:
+          <<: *tv-series-from-sasha
+          settings:
+            parse_only: yes
     filesystem:
       path: '/home/jawilson/Dropbox/torrents/TV'
       recursive: yes
@@ -367,6 +395,7 @@ tasks:
     filesystem:
       path:
         - '{? storage.videos ?}/TV Shows'
+        - '{? storage.videos ?}/Sasha TV'
       recursive: yes
       retrieve: files
       regexp: '.*\.(avi|mkv|mp4|mpg|m4v|ts)$'
@@ -374,11 +403,17 @@ tasks:
       reject:
         - \bsample\b: {from: title}
     <<: *tv-series
-    configure_series:
-      <<: *tv-series-from
-      settings:
-        tracking: backfill
-        upgrade: yes
+    sequence:
+      - configure_series:
+          <<: *tv-series-from
+          settings:
+            tracking: backfill
+            upgrade: yes
+      - configure_series:
+          <<: *tv-series-from-sasha
+          settings:
+            tracking: backfill
+            upgrade: yes
 
 
   Sync-Trakt-Shows-Deleted:
@@ -390,12 +425,17 @@ tasks:
           <<: *tv-trakt-list-tv-shows
           context: collected
           position: next
+      - next_trakt_episodes:
+          <<: *tv-trakt-list-sasha-tv
+          context: collected
+          position: next
     all_series:
       tracking: no
       parse_only: yes
     accept_all: yes
     exists_series:
       - "{? storage.videos ?}/TV Shows"
+      - "{? storage.videos ?}/Sasha TV"
     series_remove: yes
     run_task:
       when: accepted
@@ -418,6 +458,7 @@ tasks:
     archives: yes
     exists_series:
       - "{? storage.videos ?}/TV Shows"
+      - "{? storage.videos ?}/Sasha TV"
       - '{? storage.videos ?}/staging/tv_shows'
     <<: *tv-series
     no_entries_ok: yes
@@ -468,6 +509,24 @@ tasks:
           strip_dates: yes
 
 
+  Follow-Trakt-Shows-Sasha:
+    priority: 20
+    template: [no_global,tv-trakt-follow]
+    trakt_list:
+      <<: *tv-trakt-list-sasha-tv
+      type: episodes
+      strip_dates: yes
+    list_remove:
+      - trakt_list:
+          <<: *tv-trakt-list-sasha-tv
+          strip_dates: yes
+    list_add:
+      - trakt_list:
+          <<: *tv-trakt-list-sasha-tv
+          type: shows
+          strip_dates: yes
+
+
   My-TV-Shows:
     priority: 30
     template:
@@ -507,10 +566,11 @@ tasks:
       - no_global # None of the global templates make sense here
     seen: local
     <<: *tv-series
-    configure_series:
-      <<: *tv-series-from
-      settings:
-        parse_only: yes
+    sequence:
+      - configure_series:
+          <<: *tv-series-from
+          settings:
+            parse_only: yes
     no_entries_ok: yes
     next_series_episodes: yes
     trakt_lookup: yes
@@ -645,24 +705,37 @@ tasks:
     thetvdb_lookup: yes
     # This is needed to get my season offset values
     <<: *tv-series
-    configure_series:
-      settings:
-        parse_only: yes
-        tracking: no
-      from:
-        trakt_list:
-          <<: *tv-trakt-list-tv-shows
-          type: shows
+    sequence:
+      - configure_series:
+          settings:
+            parse_only: yes
+            tracking: no
+            set:
+              move_to: >-
+                {? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
+          from:
+            trakt_list:
+              <<: *tv-trakt-list-tv-shows
+              type: shows
+      - configure_series:
+          settings:
+            parse_only: yes
+            tracking: no
+            set:
+              move_to: >-
+                {? storage.videos ?}/Sasha TV/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
+          from:
+            trakt_list:
+              <<: *tv-trakt-list-sasha-tv
+              type: shows
     all_series:
       # Don't actually filter
       parse_only: yes
       tracking: no
     accept_all: yes
     # Don't attempt to move if we don't have valid metadata
-    require_field: [tvdb_series_name, series_id]
+    require_field: [tvdb_series_name, series_id, move_to]
     move:
-      to: >
-        {? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
       rename: >
         {{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} - {{ series_id }}{% if tvdb_ep_name|default(False) %} - {{ tvdb_ep_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }}{% endif %} - {{ quality }}.{{ location[-3:] }}
       clean_source: 40

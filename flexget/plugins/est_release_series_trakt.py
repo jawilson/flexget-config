@@ -23,19 +23,21 @@ class EstimatesSeriesTrakt(object):
         episode_number = entry.get('series_episode')
         title, year_match = split_title_year(series_name)
 
-        # This value should be added to input plugins to trigger a season lookuo
+        # This value should be added to input plugins to trigger a season lookup
         season_pack = entry.get('season_pack_lookup')
 
-        kwargs = {}
-        kwargs['trakt_id'] = entry.get('trakt_show_id')
-        kwargs['trakt_slug'] = entry.get('trakt_slug')
-        kwargs['tvdb_id'] = entry.get('tvdb_id')
-        kwargs['tvrage_id'] = entry.get('tvrage_id')
-        kwargs['imdb_id'] = entry.get('imdb_id')
-        kwargs['tmdb_id'] = entry.get('tmdb_id')
-        kwargs['title'] = title
-        kwargs['year'] = entry.get('trakt_series_year') or entry.get('year') or entry.get(
-            'imdb_year') or year_match
+        kwargs = {
+            'title': title,
+            'year': entry.get('trakt_series_year')
+            or entry.get('year')
+            or entry.get('imdb_year')
+            or year_match,
+            'trakt_slug': entry.get('trakt_slug'),
+            'tmdb_id': entry.get('tmdb_id'),
+            'tvdb_id': entry.get('tvdb_id') or entry.get('trakt_series_tvdb_id'),
+            'imdb_id': entry.get('imdb_id'),
+            'tvrage_id': entry.get('tvrage_id') or entry.get('trakt_series_tvrage_id'),
+        }
 
         api_trakt = plugin.get_plugin_by_name('api_trakt').instance
         log.debug('Searching api_trakt for series')
