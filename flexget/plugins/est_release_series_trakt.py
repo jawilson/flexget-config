@@ -50,24 +50,20 @@ class EstimatesSeriesTrakt(object):
                 trakt_series = api_trakt.lookup_series(session=session, **kwargs)
                 if trakt_series is None:
                     return
-                if trakt_series.seasons.count() < season:
-                    # Season doesn't exist
-                    log.debug('%s doesn\'t have %s seasons in trakt' %
-                            (series_name, season))
-                    return datetime.max
 
                 trakt_season = trakt_series.get_season(season, session)
                 if trakt_season is None:
-                    return
+                    log.debug('%s doesn\'t have a season %s in trakt' %
+                            (series_name, season))
+                    return datetime.max
                 if season_pack:
                     entity = trakt_season
-                elif trakt_season.episode_count < episode_number:
-                    # Episode doesn't exist
-                    log.debug('%s season %s doesn\'t have %s episodes in trakt' %
-                            (series_name, season, episode_number))
-                    return datetime.max
                 else:
                     entity = trakt_series.get_episode(season, episode_number, session)
+                    if entity is None:
+                        log.debug('%s doesn\'t have a season %s episode %s in trakt' %
+                                (series_name, season, episode_number))
+                        return datetime.max
             except LookupError as e:
                 log.debug(str(e))
                 return
