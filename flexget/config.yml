@@ -297,6 +297,10 @@ templates:
     list_remove:
       - trakt_list:
           <<: *movie-trakt-list-movie-queue
+    list_add:
+      - trakt_list:
+          <<: *movie-trakt-list-movies
+          list: watchlist
 
 
   local-torrents:
@@ -771,10 +775,10 @@ schedules:
   #
   # Series
   #
-  - tasks: [ 'Follow-Trakt-Shows*', 'Sync-Trakt-Shows-Deleted' ]
+  - tasks: [ 'Sync-Trakt-Shows-Deleted' ]
     schedule:
       hour: 8
-  - tasks: [ 'My-TV-Shows' ]
+  - tasks: [ 'Follow-Trakt-Shows*', 'My-TV-Shows' ]
     schedule:
       minute: 3,18,33,48
   - tasks: [ 'Monitor-Missing-Shows' ]
@@ -784,7 +788,7 @@ schedules:
   #
   # Movies
   #
-  - tasks: [ 'My-Movies' ]
+  - tasks: [ 'My-Movies*' ]
     interval:
       hours: 1
 
