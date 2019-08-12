@@ -768,9 +768,9 @@ schedules:
   #
   # Local
   #
-  - tasks: [ 'Local-Torrents-*' ]
+  - tasks: [ 'Local-Torrents-*', 'Follow-Trakt-Shows*' ]
     interval:
-      minutes: 15
+      minutes: 20
 
   #
   # Series
@@ -778,7 +778,7 @@ schedules:
   - tasks: [ 'Sync-Trakt-Shows-Deleted' ]
     schedule:
       hour: 8
-  - tasks: [ 'Follow-Trakt-Shows*', 'My-TV-Shows' ]
+  - tasks: [ 'My-TV-Shows' ]
     schedule:
       minute: 3,18,33,48
   - tasks: [ 'Monitor-Missing-Shows' ]
