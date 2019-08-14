@@ -51,7 +51,7 @@ templates:
         title: '{{ task }} - Download Started'
         message: >
           {%- if series_name is defined %}
-          {{ tvdb_series_name|d(series_name) }} - {{ series_id }} - {% if tvdb_ep_name|default(False) %}{{ tvdb_ep_name }} - {% endif %}{{quality}}
+          {{ series_name|d(series_name) }} - {{ series_id }} - {% if tvdb_ep_name|default(False) %}{{ tvdb_ep_name }} - {% endif %}{{quality}}
           {%- elif imdb_name is defined %}
           {{ imdb_name }}{% if imdb_year|d(False) %} ({{imdb_year}}){% endif %} - {{quality}}{% if extras|d(False) %} 3d half-{{ extras|lower }}{% endif %}
           {%- else -%}
@@ -273,6 +273,7 @@ templates:
       max: 20000
       min: 1000
     # Check for already downloaded or currently downloading movies
+    require_field: [imdb_name, imdb_year]
     exists_movie:
       - "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '')|pathscrub('windows') }} ({{ imdb_year }})"
       - '{? storage.videos ?}/staging/movies'
@@ -286,10 +287,10 @@ templates:
     proper_movies: yes
     set:
       # Give folders/files nice names
-      move_completed_path: "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }})"
+      move_completed_path: "{? storage.videos ?}/Movies/{{ imdb_name|default(movie_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year|default(movie_year) }})"
       # Rename the "content file" to something nice, use leading slash to force file to top level
       content_filename: >-
-        /{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}
+        /{{ imdb_name|default(movie_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year|default(movie_year) }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}
     # This is a custom plugin, it is part of my rar-unpacking method, it changes
     # 'move_completed_path' based on the regexp in the key
     content_sort:
@@ -755,12 +756,11 @@ tasks:
     tmdb_lookup: yes
     #rottentomatoes_lookup: yes
     proper_movies: yes
-    require_field: [movie_name, movie_year]
     move:
       to: >
-        {? storage.videos ?}/Movies/{{ movie_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ movie_year }})/
+        {? storage.videos ?}/Movies/{{ imdb_name|default(movie_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year|default(movie_year) }})/
       rename: >
-        {{ movie_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ movie_year }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}.{{ location[-3:] }}
+        {{ imdb_name|default(movie_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year|default(movie_year) }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}.{{ location[-3:] }}
       clean_source: 1000
 
 schedules:
