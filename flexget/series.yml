@@ -1,17 +1,29 @@
 series:
-  - "Cosmos: A Spacetime Odyssey":
-      name_regexp: ^cosmos.+a.space.?time.odyssey
-      alternate_name:
-        - Cosmos (2014)
-  - Last Man Standing:
-      alternate_name:
-          - Last Man Standing (US)
-          - Last Man Standing (2011)
-  - "Marvel's Agents of S.H.I.E.L.D.":
-      name_regexp: ^marvel(')?s.agents.of.(s.h.i.e.l.d.?|shield)
-  - Top Gear:
-      # Do not, under any circumstances, download the US version, it sucks more
-      # than the new UK version
-      name_regexp: ^top.gear(?!.us)
-  - "The Venture Bros.":
-      name_regexp: ^the.venture.bro(ther)?s\.?
+  settings:
+    TV Shows:
+      set:
+        move_completed_path: >-
+          {? storage.videos ?}/TV Shows/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
+    Sasha TV:
+      set:
+        move_completed_path: >-
+          {? storage.videos ?}/Sasha TV/{{ tvdb_series_name|default(series_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }}/{% if series_id_type == 'ep' %}Season {{ series_season }}/{% endif %}
+  TV Shows:
+    - "Cosmos: A Spacetime Odyssey":
+        name_regexp: ^cosmos.+a.space.?time.odyssey
+        alternate_name:
+          - Cosmos (2014)
+    - Last Man Standing:
+        alternate_name:
+            - Last Man Standing (US)
+            - Last Man Standing (2011)
+    - "Marvel's Agents of S.H.I.E.L.D.":
+        name_regexp: ^marvel(')?s.agents.of.(s.h.i.e.l.d.?|shield)
+    - Top Gear:
+        # Do not, under any circumstances, download the US version, it sucks more
+        # than the new UK version
+        name_regexp: ^top.gear(?!.us)
+    - "The Venture Bros.":
+        name_regexp: ^the.venture.bro(ther)?s\.?
+    - "The Twilight Zone (2019)":
+        name_regexp: ^the.twilight.zone.2019

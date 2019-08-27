@@ -34,7 +34,7 @@ templates:
     # Make there's 50GB free before adding more downloads
     free_space:
       path: '{? storage.videos ?}'
-      space: 50000
+      space: 80000
     # Make sure all filenames are Windows safe (for samba)
     pathscrub: windows
     # Limit the frequency of requests to domains so they don't complain about
@@ -270,7 +270,7 @@ templates:
     quality: 720p+ dvdrip+ h264+ !mp3 !aac
     # Impose reasonable size constraints
     content_size:
-      max: 20000
+      max: 40000
       min: 1000
     # Check for already downloaded or currently downloading movies
     require_field: [imdb_name, imdb_year]
@@ -502,16 +502,13 @@ tasks:
     trakt_list:
       <<: *tv-trakt-list-tv-shows
       type: episodes
-      strip_dates: yes
     list_remove:
       - trakt_list:
           <<: *tv-trakt-list-tv-shows
-          strip_dates: yes
     list_add:
       - trakt_list:
           <<: *tv-trakt-list-tv-shows
           type: shows
-          strip_dates: yes
 
 
   Follow-Trakt-Shows-Sasha:
@@ -520,16 +517,13 @@ tasks:
     trakt_list:
       <<: *tv-trakt-list-sasha-tv
       type: episodes
-      strip_dates: yes
     list_remove:
       - trakt_list:
           <<: *tv-trakt-list-sasha-tv
-          strip_dates: yes
     list_add:
       - trakt_list:
           <<: *tv-trakt-list-sasha-tv
           type: shows
-          strip_dates: yes
 
 
   My-TV-Shows:
@@ -755,12 +749,13 @@ tasks:
     imdb_lookup: yes
     tmdb_lookup: yes
     #rottentomatoes_lookup: yes
+    require_field: [imdb_name, imdb_year]
     proper_movies: yes
     move:
       to: >
-        {? storage.videos ?}/Movies/{{ imdb_name|default(movie_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year|default(movie_year) }})/
+        {? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }})/
       rename: >
-        {{ imdb_name|default(movie_name)|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year|default(movie_year) }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}.{{ location[-3:] }}
+        {{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}.{{ location[-3:] }}
       clean_source: 1000
 
 schedules:
