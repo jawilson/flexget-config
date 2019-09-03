@@ -163,6 +163,12 @@ templates:
       - seen
     accept_all: yes
     no_entries_ok: yes
+    thetvdb_lookup: yes
+    require_field: [tvdb_series_name, series_id]
+    manipulate:
+      - series_name:
+          phase: modify
+          from: tvdb_series_name
     set_series_begin: yes
 
   tv-filter:
