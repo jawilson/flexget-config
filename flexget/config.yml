@@ -425,6 +425,9 @@ tasks:
           settings:
             tracking: backfill
             upgrade: yes
+    all_series:
+      parse_only: yes
+    accept_all: yes
 
 
   Sync-Trakt-Shows-Deleted:
