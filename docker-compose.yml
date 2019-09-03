@@ -61,9 +61,10 @@ services:
     environment:
       - PUID=112
       - PGID=1001
+      - TZ=America/New_York
       - TORRENT_PLUGIN=deluge
       - FLEXGET_LOG_LEVEL=info
-      - TZ=America/New_York
+      - FLEXGET_SERIES_SHOW_SORTBY_FIELD=identifier
     volumes:
       - ./flexget:/config
       - ./flexget/99-install-other-deps:/etc/cont-init.d/99-install-other-deps:ro
