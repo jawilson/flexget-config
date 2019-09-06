@@ -10,7 +10,7 @@ services:
     volumes:
       - ./dbox/.dropbox:/dbox/.dropbox
       - ./dbox/dropbox:/dbox/Dropbox
-  deluge-private:
+  deluge:
     image: linuxserver/deluge
     restart: unless-stopped
     expose:
@@ -19,34 +19,13 @@ services:
       - "8112:8112"
       - "65088:65088"
       - "65088:65088/udp"
-    links:
-      - "deluge-public:public"
     environment:
       - PUID=113
       - PGID=1001
       - UMASK_SET=002
       - TZ=America/New_York
     volumes:
-      - ./deluge/config-private:/config
-      - ./deluge/trigger-decompress.sh:/usr/local/bin/trigger-decompress.sh:ro
-      - ./deluge/downloads:/downloads
-      - /media/raid/videos:/videos
-  deluge-public:
-    image: linuxserver/deluge
-    restart: unless-stopped
-    expose:
-      - 58846
-    ports:
-      - "8113:8112"
-      - "65087:65087"
-      - "65087:65087/udp"
-    environment:
-      - PUID=113
-      - PGID=1001
-      - UMASK_SET=002
-      - TZ=America/New_York
-    volumes:
-      - ./deluge/config-public:/config
+      - ./deluge/config:/config
       - ./deluge/trigger-decompress.sh:/usr/local/bin/trigger-decompress.sh:ro
       - ./deluge/downloads:/downloads
       - /media/raid/videos:/videos
@@ -54,8 +33,7 @@ services:
     image: cpoppema/docker-flexget
     restart: unless-stopped
     links:
-      - "deluge-public:public"
-      - "deluge-private:private"
+      - deluge
     ports:
       - 5050:5050
     environment:

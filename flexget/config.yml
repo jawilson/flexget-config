@@ -13,24 +13,13 @@ web_server: yes
 
 templates:
   global:
-    # Some strings I found tripping up the parsers
-    if:
-      - "'torrentleech' in url":
-          deluge:
-            username: '{? deluge.username ?}'
-            password: '{? deluge.password ?}'
-            main_file_only: yes # Ignore all but the file that is >90% of the torrent if it exists
-            keep_subs: yes
-            host: private
-            port: 58846
-      - "'torrentleech' not in url":
-          deluge:
-            username: '{? deluge.username ?}'
-            password: '{? deluge.password ?}'
-            main_file_only: yes # Ignore all but the file that is >90% of the torrent if it exists
-            keep_subs: yes
-            host: public
-            port: 58846
+    deluge:
+      username: '{? deluge.username ?}'
+      password: '{? deluge.password ?}'
+      main_file_only: yes # Ignore all but the file that is >90% of the torrent if it exists
+      keep_subs: yes
+      host: deluge
+      port: 58846
     # Make there's 50GB free before adding more downloads
     free_space:
       path: '{? storage.videos ?}'
