@@ -40,7 +40,8 @@ class RewriteMagnet(object):
         if lt_version > [0,16,13,0] and lt_version < [1,1,3,0]:
             # for some reason the info_hash needs to be bytes but it's a struct called sha1_hash
             params['info_hash'] = params['info_hash'].to_bytes()
-        handle = libtorrent.add_magnet_uri(session, magnet_uri, params)
+        params.url = magnet_uri
+        session.add_torrent(params)
         log.debug('Acquiring torrent metadata for magnet %s', magnet_uri)
         handle.force_dht_announce()
         timeout_value = timeout

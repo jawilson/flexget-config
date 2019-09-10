@@ -142,6 +142,7 @@ templates:
             category: [41, 49]
             use_tvdb: true
             min_seeders: 10
+        - 1337x: yes
         - piratebay:
             category: 'highres tv'
         - piratebay:
@@ -239,6 +240,23 @@ templates:
     _movie_trakt_list_movie_queue: &movie-trakt-list-movie-queue
       <<: *movie-trakt-list-movies
       list: Movie Queue
+    _movies_discover_from: &movies-discover-from
+      from:
+        - torrentleech:
+            rss_key: '{? torrentleech.rss_key ?}'
+            username: '{? torrentleech.username ?}'
+            password: '{? torrentleech.password ?}'
+            category: [11, 12, 13, 14, 29, 37, 41, 43, 47]
+        - flexget_archive: [movies]
+        - rarbg:
+            category: [44, 45, 47]
+            min_seeders: 10
+        - 1337x: yes
+        #- yts: yes
+        - piratebay:
+            category: 'highres movies'
+        - piratebay:
+            category: 'movies'
 
   movies-filter:
     template: [global-filter]
@@ -252,7 +270,7 @@ templates:
       reject:
         - \b(duo|tri|quadri|tetra|penta)logy\b: {from: title} # Block series, only accept one at a time
         - \btrailer\b: {from: title}                          # I've gotten a few trailers that matched as movies. VERY annoying
-        - s\d+e\d+: {from: title}
+        - s\d{2}(e\d{2,})?: {from: title}
         - '\d{4}.\d{2}.\d{2}': {from: title}
         - \d+x\d+: {from: title}
         - \baac2: {from: title} # No 2 channel audio
@@ -623,23 +641,10 @@ tasks:
       release_estimations:
         optimistic: 30 days
       interval: 2 hours
+      <<: *movies-discover-from
       what:
         - trakt_list:
             <<: *movie-trakt-list-movie-queue
-      from:
-        - torrentleech:
-            rss_key: '{? torrentleech.rss_key ?}'
-            username: '{? torrentleech.username ?}'
-            password: '{? torrentleech.password ?}'
-            category: [11, 12, 13, 14, 29, 37, 41, 43, 47]
-        - flexget_archive: [movies]
-        - rarbg:
-            category: [44, 45, 47]
-            min_seeders: 10
-        - piratebay:
-            category: 'highres movies'
-        - piratebay:
-            category: 'movies'
     archive: [movies]
     set:
       label: my-movies
@@ -660,6 +665,7 @@ tasks:
       regexp: '.*\.(rar|r0[01]?|zip)$'
     archives: yes
     no_entries_ok: yes
+    seen: local
     decompress:
       keep_dirs: no
       delete_archive: no
@@ -681,6 +687,7 @@ tasks:
     archives: yes
     metainfo_movie: yes
     no_entries_ok: yes
+    seen: local
     decompress:
       keep_dirs: no
       delete_archive: no
@@ -698,6 +705,8 @@ tasks:
     # Where to get the unpacked (staged) files from
     filesystem:
       path: '{? storage.videos ?}/staging/tv_shows/'
+      recursive: true
+      retrieve: files
     # Where to get the metadata
     thetvdb_lookup: yes
     # This is needed to get my season offset values
@@ -744,6 +753,8 @@ tasks:
       - sorting
     filesystem:
       path: '{? storage.videos ?}/staging/movies/'
+      recursive: true
+      retrieve: files
     imdb_lookup: yes
     tmdb_lookup: yes
     #rottentomatoes_lookup: yes
