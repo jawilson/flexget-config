@@ -41,7 +41,7 @@ class RewriteMagnet(object):
             # for some reason the info_hash needs to be bytes but it's a struct called sha1_hash
             params['info_hash'] = params['info_hash'].to_bytes()
         params.url = magnet_uri
-        session.add_torrent(params)
+        handle = session.add_torrent(params)
         log.debug('Acquiring torrent metadata for magnet %s', magnet_uri)
         handle.force_dht_announce()
         timeout_value = timeout
