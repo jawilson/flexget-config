@@ -35,6 +35,14 @@ templates:
       thexem.de: 10 seconds
     # TorrentLeech uses cloudflare anti-bot measures, bypass those
     cfscraper: yes
+    log_filter:
+      'flexget.components.series.series':
+        - already configured in series plugin
+        - configured multiple times in series plugin
+      utils:
+        - Input next_series_seasons did not return anything
+      discover:
+        - Error searching with piratebay
     notify:
       entries:
         title: '{{ task }} - Download Started'
