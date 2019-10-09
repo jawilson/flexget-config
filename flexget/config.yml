@@ -102,8 +102,7 @@ templates:
       webdl:
         above: dvdrip
     # Size and seed restrictions require real torrents
-    rewrite_magnet:
-      scrape: yes
+    rewrite_magnet: yes
     magnets: no
     sort_by:
       - field: quality

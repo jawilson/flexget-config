@@ -23,7 +23,6 @@ class RewriteMagnet(object):
                 "type": "object",
                 "properties": {
                     "timeout": {"type": "string", "format": "interval"},
-                    "scrape": {"type": "boolean"},
                     "force": {"type": "boolean"}
                 },
                 "additionalProperties": False
@@ -31,8 +30,9 @@ class RewriteMagnet(object):
         ]
     }
 
-    def process(self, entry, destination_folder, scrape, timeout):
+    def process(self, entry, destination_folder, timeout):
         import libtorrent
+
         magnet_uri = entry['url']
         params = libtorrent.parse_magnet_uri(magnet_uri)
         session = libtorrent.session()
@@ -84,7 +84,6 @@ class RewriteMagnet(object):
         if not isinstance(config, dict):
             config = {}
         config.setdefault('timeout', '30 seconds')
-        config.setdefault('scrape', True)
         config.setdefault('force', False)
         return config
 
@@ -115,7 +114,7 @@ class RewriteMagnet(object):
                 entry.setdefault('urls', [entry['url']])
                 try:
                     log.info('Converting entry {} magnet URI to a torrent file'.format(entry['title']))
-                    self.process(entry, converted_path, config['scrape'], timeout)
+                    self.process(entry, converted_path, timeout)
                 except (plugin.PluginError, TypeError) as e:
                     log.error('Unable to convert Magnet URI for entry %s: %s', entry['title'], e)
                     if config['force']:

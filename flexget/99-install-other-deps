@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
 
-apk add --no-cache --update nodejs g++ python2-dev
+apk add --no-cache --update nodejs
 pip install -U rarfile
 pip install -U cloudscraper

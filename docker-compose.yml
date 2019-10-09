@@ -30,7 +30,7 @@ services:
       - ./deluge/downloads:/downloads
       - /media/raid/videos:/videos
   flexget:
-    image: cpoppema/docker-flexget
+    image: cpoppema/docker-flexget:amd64-latest
     restart: unless-stopped
     links:
       - deluge
