@@ -1,4 +1,4 @@
-version: '2'
+version: "3.7"
 
 services:
   dropbox:
@@ -10,15 +10,38 @@ services:
     volumes:
       - ./dbox/.dropbox:/dbox/.dropbox
       - ./dbox/dropbox:/dbox/Dropbox
+  pia:
+    build: https://github.com/qdm12/private-internet-access-docker.git
+    image: qmcgaw/private-internet-access
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    network_mode: bridge
+    init: true
+    ports:
+      - "8112:8112"
+      - "5050:5050"
+    environment:
+      - ENCRYPTION=strong
+      - PROTOCOL=udp
+      - PORT_FORWARDING=on
+      - PORT_FORWARDING_STATUS_FILE=/pia/forwarded_port
+      - NONROOT=no
+      - DOT=on
+      - BLOCK_MALICIOUS=on
+      - BLOCK_NSA=on
+      - FIREWALL=on
+      - TZ=America/New_York
+    env_file:
+      - ./.pia.env
+    volumes:
+      - pia:/pia
   deluge:
     image: linuxserver/deluge
     restart: unless-stopped
-    expose:
-      - 58846
-    ports:
-      - "8112:8112"
-      - "65088:65088"
-      - "65088:65088/udp"
+    network_mode: "service:pia"
     environment:
       - PUID=113
       - PGID=1001
@@ -29,13 +52,10 @@ services:
       - ./deluge/trigger-decompress.sh:/usr/local/bin/trigger-decompress.sh:ro
       - ./deluge/downloads:/downloads
       - /media/raid/videos:/videos
+      - pia:/pia:ro
   flexget:
     image: cpoppema/docker-flexget:amd64-latest
     restart: unless-stopped
-    links:
-      - deluge
-    ports:
-      - 5050:5050
     environment:
       - PUID=112
       - PGID=1001
@@ -51,3 +71,6 @@ services:
       - ./dbox/dropbox/Flexget/secretfile.yml:/config/secretfile.yml:ro
       - ./deluge/downloads:/downloads:ro
       - /media/raid/videos:/videos
+
+volumes:
+  pia:

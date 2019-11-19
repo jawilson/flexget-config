@@ -8,7 +8,7 @@ web.conf
 label.conf
 state/
 ssl/
-plugins/
+.python-eggs/
 downloads/
 icons/
 archive/

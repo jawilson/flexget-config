@@ -18,7 +18,7 @@ templates:
       password: '{? deluge.password ?}'
       main_file_only: yes # Ignore all but the file that is >90% of the torrent if it exists
       keep_subs: yes
-      host: deluge
+      host: localhost
       port: 58846
     # Make there's 50GB free before adding more downloads
     free_space:
