@@ -399,7 +399,7 @@ tasks:
           settings:
             parse_only: yes
     filesystem:
-      path: '/home/jawilson/Dropbox/torrents/TV'
+      path: '/torrents/TV'
       recursive: yes
       retrieve: files
       regexp: '.*\.torrent$'
@@ -415,7 +415,7 @@ tasks:
       - local-torrents
       - movies-global
     filesystem:
-      path: '/home/jawilson/Dropbox/torrents/Movies'
+      path: '/torrents/Movies'
       recursive: yes
       retrieve: files
       regexp: '.*\.torrent$'

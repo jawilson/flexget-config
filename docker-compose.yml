@@ -69,10 +69,13 @@ services:
       - ./flexget:/config
       - ./flexget/99-install-other-deps:/etc/cont-init.d/99-install-other-deps:ro
       - ./dbox/dropbox/Flexget/db-config.sqlite:/config/db-config.sqlite
-      - ./dbox/dropbox/torrents:/home/jawilson/Dropbox/torrents
       - ./dbox/dropbox/Flexget/secretfile.yml:/config/secretfile.yml:ro
       - ./deluge/downloads:/downloads:ro
       - /media/raid/videos:/videos
+      - torrents:/torrents
 
 volumes:
   pia:
+  torrents:
+    external:
+      name: nextcloud_torrents
