@@ -33,6 +33,7 @@ services:
       - BLOCK_MALICIOUS=on
       - BLOCK_NSA=on
       - FIREWALL=on
+      - EXTRA_SUBNETS=192.168.0.0/24
       - TZ=America/New_York
     env_file:
       - ./.pia.env
