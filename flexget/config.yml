@@ -296,13 +296,9 @@ templates:
         - '\d{4}.\d{2}.\d{2}': {from: title}
         - \d+x\d+: {from: title}
         - \baac2: {from: title} # No 2 channel audio
-    upgrade:
-      tracking: yes
-    timeframe:
-      target: 1080p+ bluray+ h265+ !ac3
-      wait: 28 days
-      on_reached: do_nothing
-    quality: 720p+ dvdrip+ h264+ !mp3 !aac
+    quality:
+      - 720p-1080p dvdrip+ h264+
+      - 2160p+ dvdrip+ h265+
     # Impose reasonable size constraints
     content_size:
       max: 40000
@@ -310,9 +306,12 @@ templates:
     # Check for already downloaded or currently downloading movies
     require_field: [imdb_name, imdb_year]
     exists_movie:
-      - "{? storage.videos ?}/Movies/{{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '')|pathscrub('windows') }} ({{ imdb_year }})"
-      - '{? storage.videos ?}/staging/movies'
-      - '{? storage.downloads ?}'
+      allow_different_qualities: better
+      lookup: imdb
+      path:
+        - '{? storage.videos ?}/Movies'
+        - '{? storage.videos ?}/staging/movies'
+        - '{? storage.downloads ?}'
 
   movies-global:
     imdb_lookup: yes
@@ -672,6 +671,15 @@ tasks:
       what:
         - trakt_list:
             <<: *movie-trakt-list-movie-queue
+    upgrade:
+      tracking: yes
+    timeframe:
+      target: 1080p+ webdl+ h264+ >aac
+      wait: 7 days
+      on_reached: do_nothing
+    best_quality:
+      on_best: do_nothing
+      on_lower: reject
     archive: [movies]
     set:
       label: my-movies
@@ -680,6 +688,35 @@ tasks:
         - trakt_list:
             <<: *movie-trakt-list-movie-queue
       remove_on_match: no
+
+
+  My-Movies-Upgrade:
+    priority: 101
+    template:
+      - movies-global
+      - movies-filter
+    rss:
+      url: 'http://rss.torrentleech.org/{? torrentleech.rss_key ?}'
+      other_fields: [category]
+    discover:
+      release_estimations:
+        optimistic: 30 days
+      interval: 2 hours
+      <<: *movies-discover-from
+      what:
+        - limit:
+            amount: 10
+            from:
+              trakt_list:
+                <<: *movie-trakt-list-movies
+                list: watchlist
+    upgrade:
+      timeframe: 9 weeks
+      target: 1080p+ <=bluray <=h265 <=dts
+      propers: yes
+    archive: [movies]
+    set:
+      label: my-movies-upgrade
 
 
   Series-Decompress:
