@@ -1,15 +1,6 @@
 version: "3.7"
 
 services:
-  dropbox:
-    image: janeczku/dropbox
-    restart: unless-stopped
-    environment:
-      - DBOX_UID=1000
-      - DBOX_GID=1001
-    volumes:
-      - ./dbox/.dropbox:/dbox/.dropbox
-      - ./dbox/dropbox:/dbox/Dropbox
   pia:
     build: https://github.com/qdm12/private-internet-access-docker.git
     image: qmcgaw/private-internet-access
@@ -24,14 +15,14 @@ services:
       - "8112:8112"
       - "5050:5050"
     environment:
-      - ENCRYPTION=strong
+      - PIA_ENCRYPTION=strong
       - PROTOCOL=udp
       - PORT_FORWARDING=on
       - PORT_FORWARDING_STATUS_FILE=/pia/forwarded_port
       - NONROOT=no
       - DOT=on
       - BLOCK_MALICIOUS=on
-      - BLOCK_NSA=on
+      - BLOCK_SURVEILLANCE=on
       - FIREWALL=on
       - EXTRA_SUBNETS=192.168.0.0/24
       - TZ=America/New_York
