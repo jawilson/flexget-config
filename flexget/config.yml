@@ -145,7 +145,7 @@ templates:
             rss_key: '{? torrentleech.rss_key ?}'
             username: '{? torrentleech.username ?}'
             password: '{? torrentleech.password ?}'
-            category: ['Episodes HD', 'Episodes']
+            category: ['Episodes HD', 'Episodes', 'Boxsets']
         - flexget_archive: [tv]
         - rarbg:
             category: [41, 49]
@@ -178,7 +178,7 @@ templates:
       wait: 3 days
       on_reached: do_nothing
     quality: 480p+ webrip+
-    sequence:
+    sequence: &tv-filter-sequence
       - configure_series:
           <<: *tv-series-from
           settings:
@@ -375,8 +375,8 @@ templates:
 # This is where we pull everything together
 tasks:
 
-  # Use a local folder (synced with Dropbox) as a source
-  # I can drop torrents in this folder and they are synced with Dropbox, always
+  # Use a local folder (synced with Nextcloud) as a source
+  # I can drop torrents in this folder and they are synced with Nextcloud, always
   # accepted, then the original file is deleted
   Local-Torrents-TV:
     priority: 1
@@ -443,19 +443,12 @@ tasks:
       reject:
         - \bsample\b: {from: title}
     <<: *tv-series
-    sequence:
-      - configure_series:
-          <<: *tv-series-from
-          settings:
-            tracking: backfill
-            upgrade: yes
-      - configure_series:
-          <<: *tv-series-from-sasha
-          settings:
-            tracking: backfill
-            upgrade: yes
+    thetvdb_lookup: yes
+    trakt_lookup: yes
+    metainfo_series: yes
     all_series:
       parse_only: yes
+    sequence: *tv-filter-sequence
     accept_all: yes
 
 
@@ -578,7 +571,7 @@ tasks:
       - "has_field('category')":
           regexp:
             reject_excluding:
-              - '^Episodes( HD)?$': {from: category}
+              - '^(Episodes( HD)?)|(TV Boxsets)$': {from: category}
     discover:
       release_estimations:
         optimistic: 1 days

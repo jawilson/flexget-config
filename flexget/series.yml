@@ -27,3 +27,6 @@ series:
     - "You're the Worst":
         alternate_name:
           - Youre the Worst
+  Sasha TV:
+    - The Circle:
+        name_regexp: ^the.circle(?!.us)
