@@ -384,19 +384,23 @@ tasks:
     template:
       - local-torrents
       - tv-global
+    disable: builtins
     all_series:
-      parse_only: yes
+      tracking: no
+      parse_only: true
       assume_special: yes
       season_packs: yes
     sequence:
       - configure_series:
           <<: *tv-series-from
           settings:
-            parse_only: yes
+            tracking: no
+            parse_only: true
       - configure_series:
           <<: *tv-series-from-sasha
           settings:
-            parse_only: yes
+            tracking: no
+            parse_only: true
     filesystem:
       path: '/torrents/TV'
       recursive: yes
@@ -405,6 +409,10 @@ tasks:
     series_add: yes
     set:
       label: local-tv
+    list_remove:
+      - trakt_list:
+          <<: *tv-trakt-list-tv-shows-missing
+          type: episodes
 
 
   # Same as above but for movies
@@ -585,6 +593,12 @@ tasks:
         - next_series_episodes:
             backfill: yes
             from_start: yes
+        - next_trakt_episodes:
+            <<: *tv-trakt-list-tv-shows
+            context: collected
+        - next_trakt_episodes:
+            <<: *tv-trakt-list-sasha-tv
+            context: collected
     max_reruns: 2
     archive: [tv]
     set:

@@ -4,10 +4,6 @@ series:
         name_regexp: ^cosmos.+a.space.?time.odyssey
         alternate_name:
           - Cosmos (2014)
-    - Last Man Standing:
-        alternate_name:
-          - Last Man Standing (US)
-          - Last Man Standing (2011)
     - "Marvel's Agents of S.H.I.E.L.D.":
         name_regexp: ^marvel(')?s.agents.of.(s.h.i.e.l.d.?|shield)
         alternate_name:
