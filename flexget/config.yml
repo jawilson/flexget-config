@@ -11,6 +11,25 @@ variables: secretfile.yml
 
 web_server: yes
 
+irc:
+  irc_torrentleech:
+    tracker_file: 'trackers/TorrentLeech.tracker'
+    rsskey: '{? torrentleech.rss_key ?}'
+    task_delay: 5
+    server: irc.torrentleech.org
+    port: 7011
+    nickname: '{? torrentleech.username ?}_bot'
+    channels: ['#tlannounces']
+    task_re:
+      - task: IRC-TV-Shows
+        patterns:
+          - regexp: 'TV :: '
+            field: irc_category
+      - task: IRC-Movies
+        patterns:
+          - regexp: 'Movies :: '
+            field: irc_category
+
 templates:
   global:
     deluge:
@@ -609,6 +628,20 @@ tasks:
           type: episodes
 
 
+  IRC-TV-Shows:
+    manual: yes
+    template:
+      - tv-global
+      - tv-filter
+    archive: [tv]
+    set:
+      label: my-tv-shows-irc
+    list_remove:
+      - trakt_list:
+          <<: *tv-trakt-list-tv-shows-missing
+          type: episodes
+
+
   Monitor-Missing-Shows:
     template:
       - no_global # None of the global templates make sense here
@@ -724,6 +757,44 @@ tasks:
     archive: [movies]
     set:
       label: my-movies-upgrade
+
+
+  IRC-Movies:
+    manual: yes
+    template:
+      - movies-global
+      - movies-filter
+    upgrade:
+      tracking: yes
+    timeframe:
+      target: 1080p+ webdl+ h264+ >aac
+      wait: 7 days
+      on_reached: do_nothing
+    best_quality:
+      on_best: do_nothing
+      on_lower: reject
+    archive: [movies]
+    set:
+      label: my-movies-irc
+    list_match:
+      from:
+        - trakt_list:
+            <<: *movie-trakt-list-movie-queue
+      remove_on_match: no
+
+
+  IRC-Movies-Upgrade:
+    manual: yes
+    template:
+      - movies-global
+      - movies-filter
+    upgrade:
+      timeframe: 9 weeks
+      target: 1080p+ <=bluray <=h265 <=dts
+      propers: yes
+    archive: [movies]
+    set:
+      label: my-movies-upgrade-irc
 
 
   Series-Decompress:
