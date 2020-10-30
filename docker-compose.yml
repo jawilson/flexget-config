@@ -2,8 +2,7 @@ version: "3.7"
 
 services:
   pia:
-    build: https://github.com/qdm12/private-internet-access-docker.git
-    image: qmcgaw/private-internet-access
+    image: qmcgaw/private-internet-access:latest
     restart: always
     cap_add:
       - NET_ADMIN
@@ -16,6 +15,7 @@ services:
       - "5050:5050"
       - "8000:8000"
     environment:
+      - VPNSP=private internet access
       - PIA_ENCRYPTION=strong
       - PROTOCOL=udp
       - PORT_FORWARDING=on
@@ -30,7 +30,7 @@ services:
     env_file:
       - ./.pia.env
     volumes:
-      - pia:/pia
+      - pia:/gluetun
   deluge:
     image: linuxserver/deluge
     restart: unless-stopped
