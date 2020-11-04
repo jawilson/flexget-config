@@ -913,6 +913,34 @@ tasks:
         {{ imdb_name|replace('/', '_')|replace(':', ' -')|replace(',', '') }} ({{ imdb_year }}) - {{ quality }}{% if extras|default(False) %} 3d half-{{ extras|lower }}{% endif %}.{{ location[-3:] }}
       clean_source: 1000
 
+
+  Deluge-Finished-Update:
+    template:
+      - no_global # None of the global templates make sense here
+    disable:
+      - seen
+      - seen_info_hash
+    no_entries_ok: yes
+    from_deluge:
+      <<: *deluge
+    if:
+      - 'deluge_file_priorities|length < 2 or (deluge_file_priorities|sort(reverse=true))[1] == 0': reject
+    regexp:
+      reject:
+        - Downloading:
+            from: deluge_state
+      reject_excluding:
+        - '(torrentleech.org|tleechreload.org)':
+            from: deluge_tracker_host
+        - '100.0':
+            from: deluge_progress
+      rest: accept
+    set:
+      main_file_only: yes
+    deluge:
+      <<: *deluge
+
+
 schedules:
 
   #
@@ -945,3 +973,10 @@ schedules:
   - tasks: [ 'Clean-Movie-Queue' ]
     interval:
       weeks: 1
+
+  #
+  # Other
+  #
+  - tasks: [ 'Deluge-Finished-Update' ]
+    interval:
+      hours: 2
