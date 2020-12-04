@@ -19,7 +19,7 @@ services:
       - PIA_ENCRYPTION=strong
       - PROTOCOL=udp
       - PORT_FORWARDING=on
-      - PORT_FORWARDING_STATUS_FILE=/pia/forwarded_port
+      - PORT_FORWARDING_STATUS_FILE=/gluetun/forwarded_port
       - NONROOT=no
       - DOT=on
       - BLOCK_MALICIOUS=on
@@ -32,7 +32,7 @@ services:
     volumes:
       - pia:/gluetun
   deluge:
-    image: linuxserver/deluge
+    image: linuxserver/deluge:latest
     restart: unless-stopped
     network_mode: "service:pia"
     environment:
@@ -47,7 +47,7 @@ services:
       - /media/raid/videos:/videos
       - pia:/pia:ro
   flexget:
-    image: cpoppema/docker-flexget:amd64-latest
+    image: cpoppema/docker-flexget:latest
     restart: unless-stopped
     network_mode: "service:pia"
     environment:
